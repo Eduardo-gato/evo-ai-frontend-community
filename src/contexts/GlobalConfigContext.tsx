@@ -19,6 +19,7 @@ export interface GlobalConfig {
   hasInstagramConfig?: boolean;
   hasEvolutionConfig?: boolean;
   hasEvolutionGoConfig?: boolean;
+  hasWahaConfig?: boolean;
   hasEvolutionHubConfig?: boolean;
   evolutionHubEnabled?: boolean;
   // Flag genérica (default true quando ausente). false esconde "Usar canal

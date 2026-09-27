@@ -13,11 +13,36 @@ class ScheduledActionsService {
     return extractData<any>(response);
   }
 
-  async create(payload: CreateScheduledAction): Promise<ScheduledAction> {
-    const response = await api.post('/scheduled_actions', {
-      scheduled_action: payload,
+  async create(payload: CreateScheduledAction, files: File[] = []): Promise<ScheduledAction> {
+    if (files.length === 0) {
+      const response = await api.post('/scheduled_actions', {
+        scheduled_action: payload,
+      });
+      return extractData<ScheduledAction>(response);
+    }
+
+    // With attachments the request must be multipart: build the nested
+    // `scheduled_action[...]` fields by hand so Rails nests them correctly.
+    const formData = new FormData();
+    formData.append('scheduled_action[action_type]', payload.action_type);
+    formData.append('scheduled_action[scheduled_for]', payload.scheduled_for);
+    if (payload.conversation_id) formData.append('scheduled_action[conversation_id]', payload.conversation_id);
+    if (payload.contact_id) formData.append('scheduled_action[contact_id]', payload.contact_id);
+    if (payload.deal_id) formData.append('scheduled_action[deal_id]', payload.deal_id);
+    if (payload.recurrence_type) formData.append('scheduled_action[recurrence_type]', payload.recurrence_type);
+
+    Object.entries(payload.payload || {}).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(`scheduled_action[payload][${key}]`, String(value));
+      }
     });
-    return extractData<any>(response);
+
+    files.forEach(file => formData.append('scheduled_action[attachments][]', file));
+
+    const response = await api.post('/scheduled_actions', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return extractData<ScheduledAction>(response);
   }
 
   async update(id: string, payload: Partial<CreateScheduledAction>): Promise<ScheduledAction> {

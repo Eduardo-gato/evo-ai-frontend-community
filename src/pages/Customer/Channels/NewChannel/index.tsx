@@ -87,6 +87,7 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
     goBack,
     hasEvolutionConfig,
     hasEvolutionGoConfig,
+    hasWahaConfig,
     canFB,
     canWpCloud,
     canIG,
@@ -221,6 +222,7 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
     await testConnection(selectedChannel, selectedProvider, form, {
       hasEvolutionConfig,
       hasEvolutionGoConfig,
+      hasWahaConfig,
     });
   };
 
@@ -370,6 +372,7 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
             onFormChange={(key, value) => updateForm({ [key]: value })}
             hasEvolutionConfig={hasEvolutionConfig}
             hasEvolutionGoConfig={hasEvolutionGoConfig}
+            hasWahaConfig={hasWahaConfig}
             // CloudWhatsappForm's FB Embedded Signup initializes the SDK with
             // wpAppId/wpApiVersion and logs in with wpWhatsappConfigId — so this
             // button is gated by WhatsApp config, not Facebook. Prop name kept
@@ -443,7 +446,7 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
     return !!(
       selectedChannel?.type === 'whatsapp' &&
       selectedProvider &&
-      ['twilio', 'notificame', 'evolution', 'evolution_go'].includes(selectedProvider.id)
+      ['twilio', 'notificame', 'evolution', 'evolution_go', 'waha'].includes(selectedProvider.id)
     );
   };
 

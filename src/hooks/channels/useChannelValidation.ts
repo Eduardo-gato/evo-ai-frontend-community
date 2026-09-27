@@ -146,6 +146,39 @@ export const useChannelValidation = () => {
     return true;
   };
 
+  const validateWaha = (form: FormData, hasWahaConfig: boolean) => {
+    if (!getStr(form, 'name').trim()) {
+      toast.error('Nome do canal é obrigatório');
+      return false;
+    }
+    // WAHA does not need the phone number up front: it is discovered from the
+    // session (`/me`) after pairing. URL + API key are required when there is
+    // no global WAHA config, or when the operator opted into a per-channel
+    // server via the "use another WAHA server" toggle.
+    const useCustomServer = !hasWahaConfig || form.use_custom_waha === true;
+    if (useCustomServer) {
+      const rawUrl = getStr(form, 'api_url').trim();
+      if (!rawUrl) {
+        toast.error('WAHA URL é obrigatória');
+        return false;
+      }
+      if (!getStr(form, 'api_key').trim()) {
+        toast.error('WAHA API Key é obrigatória');
+        return false;
+      }
+      // Accept a host without scheme (e.g. `waha.example.com`); the backend
+      // and submission default it to HTTPS.
+      const normalized = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
+      try {
+        new URL(normalized);
+      } catch {
+        toast.error('WAHA URL deve ser uma URL válida');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const validateZapi = (form: FormData) => {
     if (!getStr(form, 'name').trim()) {
       toast.error('Nome do canal é obrigatório');
@@ -183,6 +216,7 @@ export const useChannelValidation = () => {
     config?: {
       hasEvolutionConfig?: boolean;
       hasEvolutionGoConfig?: boolean;
+      hasWahaConfig?: boolean;
     }
   ): boolean => {
     switch (channelType) {
@@ -205,6 +239,8 @@ export const useChannelValidation = () => {
             return validateEvolution(form, config?.hasEvolutionConfig ?? false);
           case 'evolution_go':
             return validateEvolutionGo(form, config?.hasEvolutionGoConfig ?? false);
+          case 'waha':
+            return validateWaha(form, config?.hasWahaConfig ?? false);
           case 'zapi':
             return validateZapi(form);
           default:
@@ -222,6 +258,7 @@ export const useChannelValidation = () => {
     validateNotificame,
     validateEvolution,
     validateEvolutionGo,
+    validateWaha,
     validateZapi,
     validateByChannelAndProvider,
     getStr,

@@ -256,6 +256,27 @@ export interface WhatsappEvolutionGoPayload {
   };
 }
 
+export interface WhatsappWahaPayload {
+  name: string;
+  display_name?: string;
+  channel: {
+    type: 'whatsapp';
+    provider: 'waha';
+    phone_number?: string;
+    provider_config?: {
+      api_url?: string;
+      api_key?: string;
+      session?: string;
+      engine?: string;
+      webhook_hmac_key?: string;
+      ignore_groups?: boolean;
+      ignore_status?: boolean;
+      ignore_channels?: boolean;
+      ignore_broadcast?: boolean;
+    };
+  };
+}
+
 export interface WhatsappTwilioPayload {
   name: string;
   display_name?: string;
@@ -344,6 +365,7 @@ export type ChannelPayload =
   | WhatsappCloudPayload
   | WhatsappEvolutionPayload
   | WhatsappEvolutionGoPayload
+  | WhatsappWahaPayload
   | WhatsappTwilioPayload
   | WhatsappNotificamePayload
   | WhatsappZapiPayload

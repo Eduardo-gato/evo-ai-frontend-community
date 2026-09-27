@@ -12,11 +12,24 @@ const EVOLUTION_STATE_MAP: Record<string, InboxConnectionState> = {
   close: 'disconnected',
   closed: 'disconnected',
   disconnected: 'disconnected',
+  working: 'connected',
+  starting: 'pending',
+  scan_qr_code: 'pending',
+  passkey_required: 'pending',
+  passkey_confirmation_required: 'pending',
+  failed: 'error',
+  stopped: 'disconnected',
 };
 
 function evolutionInstanceName(inbox: Inbox): string | undefined {
   const config = inbox.provider_config as Record<string, unknown> | undefined;
   const name = config?.instance_name ?? config?.instanceName ?? config?.instance;
+  return typeof name === 'string' && name.length > 0 ? name : undefined;
+}
+
+function wahaSessionName(inbox: Inbox): string | undefined {
+  const config = inbox.provider_config as Record<string, unknown> | undefined;
+  const name = config?.session ?? config?.session_name;
   return typeof name === 'string' && name.length > 0 ? name : undefined;
 }
 
@@ -29,8 +42,8 @@ function evolutionInstanceName(inbox: Inbox): string | undefined {
 export function isLiveCheckable(inbox: Inbox): boolean {
   return (
     normalizeChannelTypeId(inbox.channel_type) === 'whatsapp' &&
-    inbox.provider === 'evolution' &&
-    evolutionInstanceName(inbox) !== undefined
+    ((inbox.provider === 'evolution' && evolutionInstanceName(inbox) !== undefined) ||
+      (inbox.provider === 'waha' && wahaSessionName(inbox) !== undefined))
   );
 }
 
@@ -57,7 +70,7 @@ export default function useLiveChannelStatus(inboxes: Inbox[]): LiveChannelStatu
     () =>
       inboxes
         .filter(isLiveCheckable)
-        .map(inbox => `${inbox.id}:${evolutionInstanceName(inbox)}`)
+         .map(inbox => `${inbox.id}:${evolutionInstanceName(inbox) || wahaSessionName(inbox)}`)
         .join(','),
     [inboxes],
   );
@@ -78,12 +91,17 @@ export default function useLiveChannelStatus(inboxes: Inbox[]): LiveChannelStatu
 
     targets.forEach(inbox => {
       const id = String(inbox.id);
-      api
-        .get('/evolution/instances', { params: { instanceName: evolutionInstanceName(inbox) } })
+      const request =
+        inbox.provider === 'waha'
+          ? api.get('/waha/authorization/fetch', { params: { session: wahaSessionName(inbox) } })
+          : api.get('/evolution/instances', { params: { instanceName: evolutionInstanceName(inbox) } });
+
+      request
         .then(response => {
           if (cancelled) return;
-          const instance = (response.data?.data?.instance ?? {}) as Record<string, unknown>;
-          const raw = String(instance.state ?? instance.status ?? '').toLowerCase();
+          const providerConnection = response.data?.provider_connection?.connection;
+          const instance = (response.data?.data?.instance ?? response.data?.data ?? {}) as Record<string, unknown>;
+          const raw = String(providerConnection ?? instance.state ?? instance.status ?? '').toLowerCase();
           const mapped = EVOLUTION_STATE_MAP[raw];
           if (mapped) {
             setStates(prev => ({ ...prev, [id]: mapped }));

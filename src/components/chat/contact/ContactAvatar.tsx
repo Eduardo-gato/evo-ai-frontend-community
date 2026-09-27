@@ -118,6 +118,7 @@ const ContactAvatar: React.FC<ContactAvatarProps> = ({
     const providerNames: Record<string, string> = {
       evolution: 'Evolution API',
       evolution_go: 'Evolution Go',
+      waha: 'WAHA',
       whatsapp_cloud: 'WhatsApp Cloud',
       notificame: 'Notificame',
       zapi: 'Z-API',

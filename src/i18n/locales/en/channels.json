@@ -177,6 +177,10 @@
         "name": "Evolution Go",
         "description": "WhatsApp Evolution Go API - optimized performance"
       },
+      "waha": {
+        "name": "WAHA",
+        "description": "Self-hosted WhatsApp HTTP API with QR Code sessions"
+      },
       "notificame": {
         "name": "Notificame",
         "description": "Brazilian WhatsApp provider"
@@ -1077,6 +1081,52 @@
           },
           "privacyTitle": "Privacy Settings",
           "privacyDescription": "Configure WhatsApp privacy settings"
+        },
+        "waha": {
+          "sessionNotConfigured": "Session not configured",
+          "connect": "Connect",
+          "disconnect": "Disconnect",
+          "getQrCode": "Get QR Code",
+          "refreshQrCode": "Refresh QR Code",
+          "qrDialog": {
+            "title": "Connect WhatsApp with WAHA",
+            "description": "Scan this QR Code in WhatsApp > Linked devices."
+          },
+          "toasts": {
+            "sessionStarted": "WAHA session started",
+            "sessionLoggedOut": "WAHA session disconnected",
+            "qrError": "Could not retrieve the QR Code",
+            "connectError": "Error starting the WAHA session",
+            "disconnectError": "Error disconnecting the WAHA session"
+          },
+          "server": {
+            "title": "WAHA server",
+            "help": "This channel uses the global configuration. You can point it at another WAHA server by entering the URL and API key.",
+            "modeGlobal": "Using global configuration",
+            "modeCustom": "Custom server",
+            "apiUrlLabel": "WAHA API URL",
+            "apiKeyLabel": "API Key",
+            "apiKeyKeepPlaceholder": "Leave blank to keep the current one",
+            "save": "Save server",
+            "useGlobal": "Use global config",
+            "urlRequired": "Enter the WAHA URL",
+            "saved": "WAHA server updated",
+            "globalSaved": "Channel is using the global configuration again",
+            "error": "Error updating the WAHA server"
+          },
+          "status": {
+            "working": "Working",
+            "connected": "Connected",
+            "stopped": "Stopped",
+            "disconnected": "Disconnected",
+            "starting": "Starting",
+            "connecting": "Connecting",
+            "scanQrCode": "Waiting for QR Code",
+            "failed": "Failed",
+            "passkeyRequired": "Password required",
+            "passkeyConfirmationRequired": "Confirm on device",
+            "unknown": "Unknown"
+          }
         }
       },
       "email": {

@@ -131,6 +131,22 @@ export const useChannelForm = () => {
         }));
         break;
 
+      case 'waha':
+        setForm(prev => ({
+          ...prev,
+          name: prev.name || 'WhatsApp WAHA',
+          api_url: prev.api_url || '',
+          api_key: prev.api_key || '',
+          use_custom_waha: prev.use_custom_waha ?? false,
+          session: prev.session || '',
+          engine: prev.engine || 'GOWS',
+          ignoreGroups: prev.ignoreGroups ?? false,
+          ignoreStatus: prev.ignoreStatus ?? true,
+          ignoreChannels: prev.ignoreChannels ?? true,
+          ignoreBroadcast: prev.ignoreBroadcast ?? true,
+        }));
+        break;
+
       case 'twilio':
         if (selectedChannel?.type === 'whatsapp') {
           setForm(prev => ({
@@ -269,6 +285,7 @@ export const useChannelForm = () => {
     // CRM doesn't need local FB_APP_ID / WP_APP_ID / INSTAGRAM_APP_ID credentials.
     hasEvolutionConfig: config.hasEvolutionConfig === true,
     hasEvolutionGoConfig: config.hasEvolutionGoConfig === true,
+    hasWahaConfig: config.hasWahaConfig === true,
     canFB: config.hasFacebookConfig === true || config.evolutionHubEnabled === true,
     canWpCloud: config.hasWhatsappConfig === true || config.evolutionHubEnabled === true,
     canIG: config.hasInstagramConfig === true || config.evolutionHubEnabled === true,

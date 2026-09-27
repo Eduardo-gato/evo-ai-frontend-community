@@ -35,6 +35,7 @@ import {
 import { EvolutionApiService, ZapiService } from '@/services/channels/channelConfigurationService';
 import InboxesService from '@/services/channels/inboxesService';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
+import { WahaConfiguration } from './WahaConfiguration';
 
 interface ConfigurationFormProps {
   inboxId: string;
@@ -2661,6 +2662,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ inbox, onUpdate }
   const isWhatsAppChannel = channelType === 'Channel::Whatsapp';
   const isEvolutionChannel = inbox.provider === 'evolution';
   const isEvolutionGoChannel = inbox.provider === 'evolution_go';
+  const isWahaChannel = inbox.provider === 'waha';
   const isZapiChannel = inbox.provider === 'zapi';
   const isEmailChannel = channelType === 'Channel::Email';
   const isTwilioChannel = channelType === 'Channel::TwilioSms';
@@ -2687,6 +2689,10 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ inbox, onUpdate }
   // WhatsApp Evolution Go
   if (isWhatsAppChannel && isEvolutionGoChannel) {
     return <EvolutionWhatsAppConfig inbox={inbox} onUpdate={handleUpdate} />;
+  }
+
+  if (isWhatsAppChannel && isWahaChannel) {
+    return <WahaConfiguration inbox={inbox} />;
   }
 
   // WhatsApp Z-API

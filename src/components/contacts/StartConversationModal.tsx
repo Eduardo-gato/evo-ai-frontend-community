@@ -109,7 +109,7 @@ export default function StartConversationModal({
     if (!isWhatsAppInbox) return false;
     const provider = (selectedInbox?.channel.provider as string)?.toLowerCase();
     // WhatsApp Cloud providers (not baileys, evolution, evolution_go)
-    return !provider || !['baileys', 'evolution', 'evolution_go'].includes(provider);
+    return !provider || !['baileys', 'evolution', 'evolution_go', 'waha'].includes(provider);
   }, [isWhatsAppInbox, selectedInbox]);
 
   const loadAvailableInboxes = useCallback(async () => {

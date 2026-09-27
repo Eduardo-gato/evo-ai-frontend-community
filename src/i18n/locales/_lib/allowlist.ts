@@ -54,7 +54,7 @@ export const COMMON_ALLOWED = new Set<string>([
   'Google Calendar', 'Google Sheets', 'Gmail', 'Slack', 'HubSpot', 'GitHub',
   'Notion', 'Stripe', 'PayPal', 'Shopify', 'WooCommerce', 'Linear', 'Canva', 'Monday.com',
   'Atlassian', 'Asana', 'Supabase', 'Microsoft Azure', 'Microsoft / Azure',
-  'Amazon S3', 'Z-API', 'Notificame', 'Bandwidth', 'BMS', 'LeadSquared',
+  'Amazon S3', 'Z-API', 'Notificame', 'WAHA', 'Bandwidth', 'BMS', 'LeadSquared',
   'Marketplace', 'Live Chat', 'LINE', 'LinkedIn', 'Twitter', 'Outlook',
   'Mailgun', 'Mandrill', 'Resend', 'SendGrid', 'Chime', 'SMS', 'Word', 'Excel',
   'A2A', 'Agent-to-Agent', 'LLM', 'Workflow', 'Task',

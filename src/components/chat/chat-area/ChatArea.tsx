@@ -198,7 +198,7 @@ const ChatArea = ({
     const shouldRefreshProviderConnection =
       isWhatsAppChannel &&
       channelProvider &&
-      ['zapi', 'evolution', 'evolution_go'].includes(channelProvider.toLowerCase()) &&
+      ['zapi', 'evolution', 'evolution_go', 'waha'].includes(channelProvider.toLowerCase()) &&
       inbox &&
       !(inbox as any)?.provider_connection;
 
@@ -230,7 +230,7 @@ const ChatArea = ({
   const isWhatsAppFreeTextChannel =
     isWhatsAppChannel &&
     channelProvider &&
-    ['baileys', 'evolution', 'evolution_go'].includes(channelProvider.toLowerCase());
+    ['baileys', 'evolution', 'evolution_go', 'waha'].includes(channelProvider.toLowerCase());
 
   // Verificar status de conexão do Z-API e Evolution
   // Buscar provider_connection do meta ou inbox
@@ -239,7 +239,7 @@ const ChatArea = ({
   const isZapiChannel = isWhatsAppChannel && channelProvider?.toLowerCase() === 'zapi';
   const isEvolutionChannel =
     isWhatsAppChannel &&
-    ['evolution', 'evolution_go'].includes(channelProvider?.toLowerCase() || '');
+    ['evolution', 'evolution_go', 'waha'].includes(channelProvider?.toLowerCase() || '');
   const isDisconnected =
     (isZapiChannel || isEvolutionChannel) &&
     ['close', 'disconnected', 'logged_out'].includes(providerConnection?.connection || '');

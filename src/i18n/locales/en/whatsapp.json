@@ -470,6 +470,26 @@
       "connectionCanceled": "Connection with Facebook canceled"
     }
   },
+  "wahaForm": {
+    "fields": {
+      "apiUrl": { "label": "WAHA API URL", "placeholder": "http://waha:3000", "help": "Optional. Leave empty to use the global WAHA configuration." },
+      "apiKey": { "label": "WAHA API Key", "placeholder": "Configured globally or enter a key", "help": "Optional. Leave empty to use the global WAHA API key." },
+      "customServer": { "label": "Use another WAHA server", "help": "Point this channel at a different WAHA server than the global one." },
+      "session": { "label": "Session name", "placeholder": "Generated automatically", "help": "Optional. Leave empty and the CRM generates a unique name." },
+      "engine": { "label": "Engine", "help": "GOWS (default) uses Go, WEBJS uses Chromium, NOWEB uses Baileys and WPP uses WPPConnect." },
+      "ignoreGroups": { "label": "Ignore groups" },
+      "ignoreStatus": { "label": "Ignore status messages" },
+      "ignoreChannels": { "label": "Ignore channels (newsletters)" },
+      "ignoreBroadcast": { "label": "Ignore broadcast lists" }
+    },
+    "sections": {
+      "engine": { "title": "WAHA session settings" },
+      "advanced": { "title": "Advanced" },
+      "ignore": { "title": "Ignore events", "help": "Filters events at the source in WAHA, reducing webhook requests. Sending messages to these chats still works." }
+    },
+    "help": "WAHA is based on WhatsApp Web. Keep the API private and use a persistent session volume.",
+    "usingGlobalConfig": "Using the global WAHA configuration. Enable the option above to use another server for this channel."
+  },
   "validation": {
     "nameRequired": "Channel name is required",
     "phoneRequired": "Phone number is required",

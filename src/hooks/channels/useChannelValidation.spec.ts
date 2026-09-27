@@ -1,20 +1,44 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { toast } from 'sonner';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { useChannelValidation } from './useChannelValidation';
 
-vi.mock('sonner', () => ({ toast: { error: vi.fn() } }));
+vi.mock('sonner', () => ({
+  toast: { error: vi.fn(), success: vi.fn() },
+}));
 
-describe('validateByChannelAndProvider — whatsapp without a provider', () => {
+import { toast } from 'sonner';
+
+describe('useChannelValidation > validateWaha', () => {
+  const { result } = renderHook(() => useChannelValidation());
+  const validate = (form: Record<string, string | boolean>, hasWahaConfig: boolean) =>
+    result.current.validateWaha(form, hasWahaConfig);
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('toasts and fails validation instead of exiting silently', () => {
-    const { validateByChannelAndProvider } = useChannelValidation();
+  it('requires URL and API key when there is no global config', () => {
+    expect(validate({ name: 'WAHA' }, false)).toBe(false);
+    expect(toast.error).toHaveBeenCalled();
+  });
 
-    const result = validateByChannelAndProvider('whatsapp', undefined, {});
+  it('accepts a valid URL and API key when there is no global config', () => {
+    expect(
+      validate({ name: 'WAHA', api_url: 'https://waha.example.com', api_key: 'secret' }, false),
+    ).toBe(true);
+  });
 
-    expect(result).toBe(false);
-    expect(toast.error).toHaveBeenCalledWith('Selecione um provedor');
+  it('does not require URL or API key with a global config and no override', () => {
+    expect(validate({ name: 'WAHA' }, true)).toBe(true);
+  });
+
+  it('requires URL and API key when the per-channel override is enabled', () => {
+    expect(validate({ name: 'WAHA', use_custom_waha: true }, true)).toBe(false);
+    expect(
+      validate(
+        { name: 'WAHA', use_custom_waha: true, api_url: 'https://waha.example.com', api_key: 'secret' },
+        true,
+      ),
+    ).toBe(true);
   });
 });

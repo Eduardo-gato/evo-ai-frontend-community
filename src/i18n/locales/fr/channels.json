@@ -1019,6 +1019,52 @@
           },
           "privacyTitle": "Paramètres de Confidentialité",
           "privacyDescription": "Configurez les paramètres de confidentialité WhatsApp"
+        },
+        "waha": {
+          "sessionNotConfigured": "Session non configurée",
+          "connect": "Connecter",
+          "disconnect": "Déconnecter",
+          "getQrCode": "Obtenir le Code QR",
+          "refreshQrCode": "Actualiser le Code QR",
+          "qrDialog": {
+            "title": "Connecter WhatsApp via WAHA",
+            "description": "Scannez ce Code QR dans WhatsApp > Appareils connectés."
+          },
+          "toasts": {
+            "sessionStarted": "Session WAHA démarrée",
+            "sessionLoggedOut": "Session WAHA déconnectée",
+            "qrError": "Impossible d'obtenir le Code QR",
+            "connectError": "Erreur lors du démarrage de la session WAHA",
+            "disconnectError": "Erreur lors de la déconnexion de la session WAHA"
+          },
+          "server": {
+            "title": "Serveur WAHA",
+            "help": "Ce canal utilise la configuration globale. Vous pouvez le pointer vers un autre serveur WAHA en saisissant l'URL et la clé API.",
+            "modeGlobal": "Configuration globale utilisée",
+            "modeCustom": "Serveur personnalisé",
+            "apiUrlLabel": "URL de l'API WAHA",
+            "apiKeyLabel": "Clé API",
+            "apiKeyKeepPlaceholder": "Laissez vide pour conserver l'actuelle",
+            "save": "Enregistrer le serveur",
+            "useGlobal": "Utiliser la config globale",
+            "urlRequired": "Saisissez l'URL WAHA",
+            "saved": "Serveur WAHA mis à jour",
+            "globalSaved": "Le canal utilise à nouveau la configuration globale",
+            "error": "Erreur lors de la mise à jour du serveur WAHA"
+          },
+          "status": {
+            "working": "En fonctionnement",
+            "connected": "Connecté",
+            "stopped": "Arrêté",
+            "disconnected": "Déconnecté",
+            "starting": "Démarrage",
+            "connecting": "Connexion",
+            "scanQrCode": "En attente du Code QR",
+            "failed": "Échec",
+            "passkeyRequired": "Mot de passe requis",
+            "passkeyConfirmationRequired": "Confirmer sur l'appareil",
+            "unknown": "Inconnu"
+          }
         }
       },
       "email": {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import {
   Dialog,
@@ -11,7 +11,7 @@ import { Button } from '@evoapi/design-system/button';
 import { Input } from '@evoapi/design-system/input';
 import { Label } from '@evoapi/design-system/label';
 import { Textarea } from '@evoapi/design-system/textarea';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Paperclip, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { scheduledActionsService } from '@/services/scheduledActions/scheduledActionsService';
@@ -27,6 +27,12 @@ interface ScheduleMessageModalProps {
   /** The message currently typed in the composer — this is what gets scheduled. */
   messageContent: string;
 }
+
+const ATTACHMENT_ACCEPT =
+  'image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar';
+
+// Matches the backend: media up to 16 MB is delivered inline to WAHA.
+const MAX_ATTACHMENT_BYTES = 16 * 1024 * 1024;
 
 const getMinDateTime = () => {
   const now = new Date();
@@ -48,16 +54,42 @@ const ScheduleMessageModal: React.FC<ScheduleMessageModalProps> = ({
   const { t } = useLanguage('chat');
   const [scheduledFor, setScheduledFor] = useState('');
   const [note, setNote] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
       setScheduledFor('');
       setNote('');
+      setFiles([]);
       setErrors({});
     }
   }, [isOpen]);
+
+  const handleFilesSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(event.target.files || []);
+    const accepted = selected.filter(file => file.size <= MAX_ATTACHMENT_BYTES);
+    if (accepted.length < selected.length) {
+      toast.error(t('messageInput.schedule.attachmentTooLarge'));
+    }
+    if (accepted.length > 0) {
+      setFiles(prev => [...prev, ...accepted]);
+      setErrors(prev => {
+        if (!prev.message) return prev;
+        const next = { ...prev };
+        delete next.message;
+        return next;
+      });
+    }
+    // Allow selecting the same file again later.
+    event.target.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -68,7 +100,7 @@ const ScheduleMessageModal: React.FC<ScheduleMessageModalProps> = ({
       newErrors.scheduledFor = t('messageInput.schedule.errors.dateTimeFuture');
     }
 
-    if (!messageContent.trim()) {
+    if (!messageContent.trim() && files.length === 0) {
       newErrors.message = t('messageInput.schedule.errors.messageRequired');
     }
 
@@ -100,7 +132,7 @@ const ScheduleMessageModal: React.FC<ScheduleMessageModalProps> = ({
         recurrence_type: 'once',
       };
 
-      await scheduledActionsService.create(payload);
+      await scheduledActionsService.create(payload, files);
       toast.success(t('messageInput.schedule.success'));
       onClose();
     } catch (error) {
@@ -125,6 +157,52 @@ const ScheduleMessageModal: React.FC<ScheduleMessageModalProps> = ({
               {messageContent.trim() || t('messageInput.schedule.emptyMessage')}
             </div>
             {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label>{t('messageInput.schedule.attachment')}</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept={ATTACHMENT_ACCEPT}
+              className="hidden"
+              onChange={handleFilesSelected}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Paperclip className="h-4 w-4 mr-2" />
+              {t('messageInput.schedule.attachmentChoose')}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              {t('messageInput.schedule.attachmentHint')}
+            </p>
+            {files.length > 0 && (
+              <ul className="space-y-1">
+                {files.map((file, index) => (
+                  <li
+                    key={`${file.name}-${index}`}
+                    className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1 text-sm"
+                  >
+                    <span className="truncate" title={file.name}>
+                      {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      aria-label={t('messageInput.schedule.attachmentRemove')}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="space-y-2">

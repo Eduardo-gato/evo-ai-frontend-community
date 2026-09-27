@@ -177,6 +177,10 @@
         "name": "Evolution Go",
         "description": "API WhatsApp Evolution Go - performance otimizada"
       },
+      "waha": {
+        "name": "WAHA",
+        "description": "API HTTP WhatsApp self-hosted com sessões por QR Code"
+      },
       "notificame": {
         "name": "Notificame",
         "description": "Provedor WhatsApp brasileiro"
@@ -1076,6 +1080,52 @@
           },
           "privacyTitle": "Configurações de Privacidade",
           "privacyDescription": "Configure as configurações de privacidade do WhatsApp"
+        },
+        "waha": {
+          "sessionNotConfigured": "Sessão não configurada",
+          "connect": "Conectar",
+          "disconnect": "Desconectar",
+          "getQrCode": "Obter QR Code",
+          "refreshQrCode": "Atualizar QR Code",
+          "qrDialog": {
+            "title": "Conectar WhatsApp via WAHA",
+            "description": "Escaneie este QR Code em WhatsApp > Dispositivos conectados."
+          },
+          "toasts": {
+            "sessionStarted": "Sessão WAHA iniciada",
+            "sessionLoggedOut": "Sessão WAHA desconectada",
+            "qrError": "Não foi possível obter o QR Code",
+            "connectError": "Erro ao iniciar a sessão WAHA",
+            "disconnectError": "Erro ao desconectar a sessão WAHA"
+          },
+          "server": {
+            "title": "Servidor WAHA",
+            "help": "Este canal usa a configuração global. Você pode apontá-lo para outro servidor WAHA informando a URL e a API key.",
+            "modeGlobal": "Usando configuração global",
+            "modeCustom": "Servidor personalizado",
+            "apiUrlLabel": "URL da API WAHA",
+            "apiKeyLabel": "API Key",
+            "apiKeyKeepPlaceholder": "Deixe em branco para manter a atual",
+            "save": "Salvar servidor",
+            "useGlobal": "Usar config global",
+            "urlRequired": "Informe a URL da WAHA",
+            "saved": "Servidor WAHA atualizado",
+            "globalSaved": "Canal voltou a usar a configuração global",
+            "error": "Erro ao atualizar o servidor WAHA"
+          },
+          "status": {
+            "working": "Trabalhando",
+            "connected": "Conectado",
+            "stopped": "Parado",
+            "disconnected": "Desconectado",
+            "starting": "Iniciando",
+            "connecting": "Conectando",
+            "scanQrCode": "Aguardando QR Code",
+            "failed": "Falhou",
+            "passkeyRequired": "Senha necessária",
+            "passkeyConfirmationRequired": "Confirme no dispositivo",
+            "unknown": "Desconhecido"
+          }
         }
       },
       "email": {

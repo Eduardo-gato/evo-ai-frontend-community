@@ -1059,6 +1059,52 @@
           },
           "privacyTitle": "Configuraciones de Privacidad",
           "privacyDescription": "Configure las configuraciones de privacidad de WhatsApp"
+        },
+        "waha": {
+          "sessionNotConfigured": "Sesión no configurada",
+          "connect": "Conectar",
+          "disconnect": "Desconectar",
+          "getQrCode": "Obtener Código QR",
+          "refreshQrCode": "Actualizar Código QR",
+          "qrDialog": {
+            "title": "Conectar WhatsApp con WAHA",
+            "description": "Escanea este Código QR en WhatsApp > Dispositivos vinculados."
+          },
+          "toasts": {
+            "sessionStarted": "Sesión WAHA iniciada",
+            "sessionLoggedOut": "Sesión WAHA desconectada",
+            "qrError": "No se pudo obtener el Código QR",
+            "connectError": "Error al iniciar la sesión WAHA",
+            "disconnectError": "Error al desconectar la sesión WAHA"
+          },
+          "server": {
+            "title": "Servidor WAHA",
+            "help": "Este canal usa la configuración global. Puedes apuntarlo a otro servidor WAHA ingresando la URL y la API key.",
+            "modeGlobal": "Usando configuración global",
+            "modeCustom": "Servidor personalizado",
+            "apiUrlLabel": "URL de la API WAHA",
+            "apiKeyLabel": "API Key",
+            "apiKeyKeepPlaceholder": "Déjalo vacío para mantener la actual",
+            "save": "Guardar servidor",
+            "useGlobal": "Usar config global",
+            "urlRequired": "Ingresa la URL de WAHA",
+            "saved": "Servidor WAHA actualizado",
+            "globalSaved": "El canal vuelve a usar la configuración global",
+            "error": "Error al actualizar el servidor WAHA"
+          },
+          "status": {
+            "working": "Trabajando",
+            "connected": "Conectado",
+            "stopped": "Detenido",
+            "disconnected": "Desconectado",
+            "starting": "Iniciando",
+            "connecting": "Conectando",
+            "scanQrCode": "Esperando el Código QR",
+            "failed": "Falló",
+            "passkeyRequired": "Contraseña requerida",
+            "passkeyConfirmationRequired": "Confirma en el dispositivo",
+            "unknown": "Desconocido"
+          }
         }
       },
       "email": {

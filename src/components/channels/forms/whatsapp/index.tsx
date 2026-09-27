@@ -5,6 +5,7 @@ import { NotificameForm } from './NotificameForm';
 import { ZapiForm } from './ZapiForm';
 import { EvolutionForm } from './EvolutionForm';
 import { EvolutionGoForm } from './EvolutionGoForm';
+import { WahaForm } from './WahaForm';
 import { FormData } from '@/hooks/channels/useChannelForm';
 import { Provider as ProviderType } from '@/components/channels/ProviderGrid';
 
@@ -14,6 +15,7 @@ interface WhatsappFormsProps {
   onFormChange: (key: string, value: string | boolean) => void;
   hasEvolutionConfig: boolean;
   hasEvolutionGoConfig: boolean;
+  hasWahaConfig: boolean;
   canFB: boolean;
   onWhatsappCloudSuccess?: (data: any) => void;
   onCancel?: () => void;
@@ -25,6 +27,7 @@ export const WhatsappForms = ({
   onFormChange,
   hasEvolutionConfig,
   hasEvolutionGoConfig,
+  hasWahaConfig,
   canFB,
   onCancel,
 }: WhatsappFormsProps) => {
@@ -61,6 +64,9 @@ export const WhatsappForms = ({
           hasEvolutionGoConfig={hasEvolutionGoConfig}
         />
       );
+
+    case 'waha':
+      return <WahaForm form={form} onFormChange={onFormChange} hasWahaConfig={hasWahaConfig} />;
 
     default:
       return (

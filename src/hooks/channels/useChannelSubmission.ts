@@ -13,6 +13,7 @@ import {
   WebWidgetPayload,
   WhatsappCloudPayload,
   WhatsappEvolutionGoPayload,
+  WhatsappWahaPayload,
   WhatsappEvolutionPayload,
   WhatsappTwilioPayload,
   WhatsappNotificamePayload,
@@ -24,10 +25,16 @@ import EvolutionGoService from '@/services/channels/evolutionGoService';
 import EmailOauthService from '@/services/channels/emailOauthService';
 import TwilioService from '@/services/channels/twilioService';
 import NotificameService from '@/services/channels/notificameService';
+import WahaService from '@/services/channels/wahaService';
 import { ChannelType, FormData } from '@/hooks/channels/useChannelForm';
 import { useChannelValidation } from '@/hooks/channels/useChannelValidation';
 import { useAppDataStore } from '@/store/appDataStore';
 import { apiErrorMessage } from '@/utils/apiHelpers';
+
+const normalizeWahaUrl = (value: string): string => {
+  const url = value.trim();
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+};
 
 export const useChannelSubmission = (form?: FormData) => {
   const navigate = useNavigate();
@@ -36,6 +43,7 @@ export const useChannelSubmission = (form?: FormData) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [healthCheckPassed, setHealthCheckPassed] = useState<boolean | null>(null);
+  const pendingWahaRef = useRef<{ session: string; apiUrl?: string; apiKey?: string } | null>(null);
 
   const pendingInstanceRef = useRef<{
     instanceUuid: string;
@@ -50,14 +58,25 @@ export const useChannelSubmission = (form?: FormData) => {
     EvolutionGoService.deleteInstance(pending).catch(() => {});
   }, []);
 
+  const cleanupPendingWaha = useCallback(() => {
+    const pending = pendingWahaRef.current;
+    if (!pending) return;
+    pendingWahaRef.current = null;
+    WahaService.deleteSession(pending).catch(() => {});
+  }, []);
+
   useEffect(() => {
     const onBeforeUnload = () => cleanupPendingInstance();
+    const onUnload = () => cleanupPendingWaha();
     window.addEventListener('beforeunload', onBeforeUnload);
+    window.addEventListener('beforeunload', onUnload);
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload);
+      window.removeEventListener('beforeunload', onUnload);
       cleanupPendingInstance();
+      cleanupPendingWaha();
     };
-  }, [cleanupPendingInstance]);
+  }, [cleanupPendingInstance, cleanupPendingWaha]);
 
   // Reset the health check whenever the API URL changes
   useEffect(() => {
@@ -70,7 +89,7 @@ export const useChannelSubmission = (form?: FormData) => {
     selectedChannel: ChannelType,
     selectedProvider: ProviderType,
     form: FormData,
-    config: { hasEvolutionConfig: boolean; hasEvolutionGoConfig: boolean },
+    config: { hasEvolutionConfig: boolean; hasEvolutionGoConfig: boolean; hasWahaConfig?: boolean },
   ) => {
     if (!selectedProvider || !selectedChannel) return;
 
@@ -205,6 +224,22 @@ export const useChannelSubmission = (form?: FormData) => {
           result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
           setHealthCheckPassed(false);
         }
+      } else if (selectedProvider.id === 'waha') {
+        const useCustomServer = config.hasWahaConfig !== true || form.use_custom_waha === true;
+        const rawUrl = getStr(form, 'api_url').trim();
+        try {
+          await WahaService.verifyConnection({
+            apiUrl: useCustomServer && rawUrl ? normalizeWahaUrl(rawUrl) : undefined,
+            apiKey: useCustomServer ? getStr(form, 'api_key') || undefined : undefined,
+            session: getStr(form, 'session') || undefined,
+            name: getStr(form, 'name'),
+          });
+          result = { success: true, message: 'Conexão com WAHA verificada com sucesso' };
+          setHealthCheckPassed(true);
+        } catch (error) {
+          result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
+          setHealthCheckPassed(false);
+        }
       } else if (selectedProvider.id === 'twilio' && selectedChannel.type === 'whatsapp') {
         try {
           result = await TwilioService.verifyConnection({
@@ -275,6 +310,7 @@ export const useChannelSubmission = (form?: FormData) => {
         | WhatsappCloudPayload
         | WhatsappEvolutionPayload
         | WhatsappEvolutionGoPayload
+        | WhatsappWahaPayload
         | WhatsappTwilioPayload
         | WhatsappNotificamePayload
         | WhatsappZapiPayload;
@@ -665,6 +701,55 @@ export const useChannelSubmission = (form?: FormData) => {
                 provider_config: providerConfig,
               },
             } as WhatsappEvolutionGoPayload;
+          } else if (selectedProvider.id === 'waha') {
+            // 🔒 SECURITY: without a per-channel override, the backend owns the
+            // URL/API key; never send them from the frontend.
+            const useCustomServer = config.hasWahaConfig !== true || form.use_custom_waha === true;
+            const rawUrl = getStr(form, 'api_url').trim();
+            const apiUrl = useCustomServer && rawUrl ? normalizeWahaUrl(rawUrl) : undefined;
+            const apiKey = useCustomServer ? getStr(form, 'api_key') || undefined : undefined;
+            const sessionResponse = await WahaService.createSession({
+              apiUrl,
+              apiKey,
+              session: getStr(form, 'session') || undefined,
+              engine: getStr(form, 'engine', 'GOWS'),
+              ignoreGroups: !!form.ignoreGroups,
+              ignoreStatus: !!form.ignoreStatus,
+              ignoreChannels: !!form.ignoreChannels,
+              ignoreBroadcast: !!form.ignoreBroadcast,
+              name: getStr(form, 'name'),
+            });
+            const session = sessionResponse?.session || getStr(form, 'session');
+            if (!session) throw new Error('A sessão WAHA não foi retornada');
+
+            // Only track a session we created: a reused one already existed in
+            // WAHA and must not be deleted if the inbox creation rolls back.
+            if (!sessionResponse?.reused) {
+              pendingWahaRef.current = { session, apiUrl, apiKey };
+            }
+            const providerConfig: Record<string, unknown> = {
+              session,
+              engine: getStr(form, 'engine', 'GOWS'),
+              ignore_groups: !!form.ignoreGroups,
+              ignore_status: !!form.ignoreStatus,
+              ignore_channels: !!form.ignoreChannels,
+              ignore_broadcast: !!form.ignoreBroadcast,
+            };
+            if (apiUrl) providerConfig.api_url = apiUrl;
+            if (apiKey) providerConfig.api_key = apiKey;
+            if (sessionResponse?.webhook_hmac_key) {
+              providerConfig.webhook_hmac_key = sessionResponse.webhook_hmac_key;
+            }
+
+            payload = {
+              name: getStr(form, 'name') || 'WhatsApp WAHA',
+              display_name: getStr(form, 'display_name') || getStr(form, 'name') || 'WhatsApp WAHA',
+              channel: {
+                type: 'whatsapp',
+                provider: 'waha',
+                provider_config: providerConfig,
+              },
+            } as WhatsappWahaPayload;
           } else if (selectedProvider.id === 'zapi') {
             payload = {
               name: getStr(form, 'name') || 'WhatsApp Z-API',
@@ -694,6 +779,8 @@ export const useChannelSubmission = (form?: FormData) => {
       // unmount during the request won't race-delete a valid instance.
       const pendingInstance = pendingInstanceRef.current;
       pendingInstanceRef.current = null;
+      const pendingWaha = pendingWahaRef.current;
+      pendingWahaRef.current = null;
 
       let response;
       try {
@@ -702,6 +789,9 @@ export const useChannelSubmission = (form?: FormData) => {
         // createChannel failed — instance exists on Evolution Go but no inbox in CRM.
         if (pendingInstance) {
           EvolutionGoService.deleteInstance(pendingInstance).catch(() => {});
+        }
+        if (pendingWaha) {
+          WahaService.deleteSession(pendingWaha).catch(() => {});
         }
         throw createError;
       }
