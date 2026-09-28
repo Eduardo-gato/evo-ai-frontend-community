@@ -1112,6 +1112,9 @@
             "urlRequired": "Enter the WAHA URL",
             "saved": "WAHA server updated",
             "globalSaved": "Channel is using the global configuration again",
+            "syncWebhook": "Reapply webhook",
+            "webhookSynced": "WAHA webhook reapplied",
+            "webhookError": "Could not reapply the WAHA webhook",
             "error": "Error updating the WAHA server"
           },
           "status": {

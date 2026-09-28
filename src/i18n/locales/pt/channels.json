@@ -1111,6 +1111,9 @@
             "urlRequired": "Informe a URL da WAHA",
             "saved": "Servidor WAHA atualizado",
             "globalSaved": "Canal voltou a usar a configuração global",
+            "syncWebhook": "Reaplicar webhook",
+            "webhookSynced": "Webhook reaplicado na WAHA",
+            "webhookError": "Não foi possível reaplicar o webhook na WAHA",
             "error": "Erro ao atualizar o servidor WAHA"
           },
           "status": {

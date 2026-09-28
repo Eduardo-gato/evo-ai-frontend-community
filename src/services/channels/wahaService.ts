@@ -79,6 +79,11 @@ const WahaService = {
     return extractData<WahaResponse>(response);
   },
 
+  async syncWebhook(session: string) {
+    const response = await api.post('/waha/authorization/sync_webhook', { session });
+    return extractData<WahaResponse>(response);
+  },
+
   async updateSettings(params: {
     session: string;
     useGlobal?: boolean;

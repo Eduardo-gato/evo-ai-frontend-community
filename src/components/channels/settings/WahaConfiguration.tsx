@@ -83,6 +83,7 @@ export const WahaConfiguration = ({ inbox }: WahaConfigurationProps) => {
   const [apiUrl, setApiUrl] = useState<string>(initialApiUrl);
   const [apiKey, setApiKey] = useState('');
   const [serverLoading, setServerLoading] = useState(false);
+  const [syncingWebhook, setSyncingWebhook] = useState(false);
 
   const statusKey = STATUS_KEYS[status.toLowerCase()] || 'unknown';
   const isConnected = CONNECTED_STATUSES.includes(status.toLowerCase());
@@ -224,6 +225,19 @@ export const WahaConfiguration = ({ inbox }: WahaConfigurationProps) => {
     }
   };
 
+  const syncWebhook = async () => {
+    if (!session) return;
+    setSyncingWebhook(true);
+    try {
+      await WahaService.syncWebhook(session);
+      toast.success(t(`${i18nPrefix}.server.webhookSynced`));
+    } catch (error) {
+      toast.error((error as Error).message || t(`${i18nPrefix}.server.webhookError`));
+    } finally {
+      setSyncingWebhook(false);
+    }
+  };
+
   const handleDeleteChannel = async () => {
     if (!inbox?.id) return;
     setDeleting(true);
@@ -308,6 +322,14 @@ export const WahaConfiguration = ({ inbox }: WahaConfigurationProps) => {
                 {t(`${i18nPrefix}.server.useGlobal`)}
               </Button>
             )}
+            <Button
+              variant="outline"
+              onClick={syncWebhook}
+              loading={syncingWebhook}
+              disabled={!session || serverLoading || syncingWebhook}
+            >
+              {t(`${i18nPrefix}.server.syncWebhook`)}
+            </Button>
           </div>
         </CardContent>
       </Card>
