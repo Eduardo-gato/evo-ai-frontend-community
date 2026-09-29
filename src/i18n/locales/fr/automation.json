@@ -136,6 +136,9 @@
           "create_pipeline_task_due_in": "Échéance dans (ex. 2d, 1w)",
           "send_attachment_ids": "ID des pièces jointes (séparés par des virgules)",
           "send_attachment_inbox": "ID du canal (facultatif)",
+          "send_attachment_upload": "Joindre un fichier de l'ordinateur",
+          "send_attachment_uploading": "Envoi...",
+          "send_attachment_uploadError": "Échec de l'envoi de la pièce jointe",
           "update_custom_attribute": "Choisir un attribut personnalisé",
           "update_custom_attribute_value": "Valeur"
         }

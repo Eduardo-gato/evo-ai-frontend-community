@@ -215,19 +215,25 @@ class AutomationService {
     }
   }
 
-  async uploadAttachment(file: File): Promise<string> {
+  /**
+   * Uploads a file from the operator's computer and returns its ActiveStorage
+   * blob id, which the `send_attachment` action stores in `attachment_ids`.
+   * Works before the rule exists (/automation/new), so it is a collection route.
+   */
+  async uploadAttachment(
+    file: File,
+  ): Promise<{ id: string; filename: string; content_type?: string; byte_size?: number }> {
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Endpoint para upload de arquivos (pode precisar ajustar conforme API)
-      const response = await api.post('/uploads', formData, {
+      const response = await api.post('/automation_rules/upload_attachment', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      return extractData<string>(response);
+      return extractData<{ id: string; filename: string }>(response);
     } catch (error: any) {
       console.error('Erro ao fazer upload do arquivo:', error);
       throw new Error(error?.response?.data?.message || 'Erro ao fazer upload do arquivo');

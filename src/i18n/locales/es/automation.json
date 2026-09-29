@@ -136,6 +136,9 @@
           "create_pipeline_task_due_in": "Vence en (p. ej., 2d, 1w)",
           "send_attachment_ids": "IDs de adjuntos (separados por comas)",
           "send_attachment_inbox": "ID del canal (opcional)",
+          "send_attachment_upload": "Adjuntar archivo del equipo",
+          "send_attachment_uploading": "Subiendo...",
+          "send_attachment_uploadError": "Error al subir el adjunto",
           "update_custom_attribute": "Elige un atributo personalizado",
           "update_custom_attribute_value": "Valor"
         }

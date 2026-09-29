@@ -136,6 +136,9 @@
           "create_pipeline_task_due_in": "Due in (e.g., 2d, 1w)",
           "send_attachment_ids": "Attachment IDs (comma-separated)",
           "send_attachment_inbox": "Channel ID (optional)",
+          "send_attachment_upload": "Attach file from computer",
+          "send_attachment_uploading": "Uploading...",
+          "send_attachment_uploadError": "Failed to upload the attachment",
           "update_custom_attribute": "Pick a custom attribute",
           "update_custom_attribute_value": "Value"
         }

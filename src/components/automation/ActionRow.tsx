@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { Controller, type Control, useWatch } from 'react-hook-form';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -11,7 +12,9 @@ import {
   Button,
   Checkbox,
 } from '@evoapi/design-system';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Paperclip, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { automationService } from '@/services/automation/automationService';
 import {
   ALL_ACTION_NAMES,
   actionRegistry,
@@ -438,54 +441,7 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
       return <div className="text-xs text-muted-foreground">{t('form.fields.actionRow.noParams')}</div>;
 
     case 'send_attachment':
-      return (
-        <Controller
-          control={control}
-          name={`actions.${index}.action_params`}
-          render={({ field }) => {
-            const current = (field.value as Array<Record<string, unknown>>)?.[0] ?? {
-              attachment_ids: [] as Array<string | number>,
-            };
-            const ids = (current.attachment_ids as Array<string | number>) ?? [];
-            const inboxId = current.inbox_id;
-            const idsAsText = ids.join(', ');
-
-            const setIdsFromText = (raw: string) => {
-              const parsed = raw
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .map((s) => (Number.isNaN(Number(s)) ? s : Number(s)));
-              field.onChange([{ ...current, attachment_ids: parsed }]);
-            };
-            const setInbox = (raw: string) => {
-              const trimmed = raw.trim();
-              if (trimmed === '') {
-                const next = { ...current };
-                delete (next as Record<string, unknown>).inbox_id;
-                field.onChange([{ ...next, attachment_ids: ids }]);
-              } else {
-                // inbox ids are UUID strings — keep the raw value
-                field.onChange([{ ...current, attachment_ids: ids, inbox_id: trimmed }]);
-              }
-            };
-            return (
-              <div className="space-y-2">
-                <Input
-                  value={idsAsText}
-                  onChange={(e) => setIdsFromText(e.target.value)}
-                  placeholder={t('form.fields.actionRow.params.send_attachment_ids')}
-                />
-                <Input
-                  value={inboxId != null ? String(inboxId) : ''}
-                  onChange={(e) => setInbox(e.target.value)}
-                  placeholder={t('form.fields.actionRow.params.send_attachment_inbox')}
-                />
-              </div>
-            );
-          }}
-        />
-      );
+      return <SendAttachmentParam control={control} index={index} t={t} />;
 
     case 'update_custom_attribute':
       return <CustomAttributeParam control={control} index={index} formData={formData} t={t} />;
@@ -493,6 +449,145 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
     default:
       return null;
   }
+}
+
+function SendAttachmentParam({
+  control,
+  index,
+  t,
+}: {
+  control: Control<AutomationRuleFormData>;
+  index: number;
+  t: (key: string) => string;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  return (
+    <Controller
+      control={control}
+      name={`actions.${index}.action_params`}
+      render={({ field }) => {
+        const rawCurrent = Array.isArray(field.value) ? field.value[0] : undefined;
+        const current = (rawCurrent ?? { attachment_ids: [] }) as {
+          attachment_ids?: Array<string | number>;
+          attachment_names?: string[];
+          inbox_id?: string;
+        };
+        const ids = current.attachment_ids ?? [];
+        const names = current.attachment_names ?? [];
+        const inboxId = current.inbox_id;
+
+        const handleFiles = async (files: FileList | null) => {
+          if (!files || files.length === 0) return;
+          setUploading(true);
+          try {
+            const addedIds: Array<string | number> = [];
+            const addedNames: string[] = [];
+            for (const file of Array.from(files)) {
+              // Sequential so each blob is created before the rule is saved.
+              const uploaded = await automationService.uploadAttachment(file);
+              addedIds.push(uploaded.id);
+              addedNames.push(uploaded.filename || file.name);
+            }
+            field.onChange([
+              {
+                ...current,
+                attachment_ids: [...ids, ...addedIds],
+                attachment_names: [...names, ...addedNames],
+              },
+            ]);
+          } catch {
+            toast.error(t('form.fields.actionRow.params.send_attachment_uploadError'));
+          } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+          }
+        };
+
+        const setIdsFromText = (raw: string) => {
+          const parsed = raw
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .map((s) => (Number.isNaN(Number(s)) ? s : Number(s)));
+          field.onChange([{ ...current, attachment_ids: parsed }]);
+        };
+
+        const removeAt = (removeIndex: number) =>
+          field.onChange([
+            {
+              ...current,
+              attachment_ids: ids.filter((_, i) => i !== removeIndex),
+              attachment_names: names.filter((_, i) => i !== removeIndex),
+            },
+          ]);
+
+        const setInbox = (raw: string) => {
+          const trimmed = raw.trim();
+          if (trimmed === '') {
+            const next = { ...current };
+            delete (next as Record<string, unknown>).inbox_id;
+            field.onChange([{ ...next, attachment_ids: ids }]);
+          } else {
+            // inbox ids are UUID strings — keep the raw value
+            field.onChange([{ ...current, attachment_ids: ids, inbox_id: trimmed }]);
+          }
+        };
+
+        return (
+          <div className="space-y-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFiles(e.target.files)}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Paperclip className="h-4 w-4 mr-2" />
+              {uploading
+                ? t('form.fields.actionRow.params.send_attachment_uploading')
+                : t('form.fields.actionRow.params.send_attachment_upload')}
+            </Button>
+
+            {ids.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {ids.map((id, i) => (
+                  <span
+                    key={`${id}-${i}`}
+                    className="inline-flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs"
+                  >
+                    {names[i] || String(id)}
+                    <button type="button" onClick={() => removeAt(i)} aria-label="remove attachment">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <Input
+              value={ids.join(', ')}
+              onChange={(e) => setIdsFromText(e.target.value)}
+              placeholder={t('form.fields.actionRow.params.send_attachment_ids')}
+            />
+            <Input
+              value={inboxId != null ? String(inboxId) : ''}
+              onChange={(e) => setInbox(e.target.value)}
+              placeholder={t('form.fields.actionRow.params.send_attachment_inbox')}
+            />
+          </div>
+        );
+      }}
+    />
+  );
 }
 
 interface SelectParamProps {
