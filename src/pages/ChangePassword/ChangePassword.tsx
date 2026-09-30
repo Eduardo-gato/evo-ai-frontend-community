@@ -84,7 +84,7 @@ const ChangePassword = () => {
       <div className="z-10 flex flex-col items-center justify-center w-full p-2">
         {/* Logo */}
         <div className="mb-4">
-          <AppLogo className="h-16" />
+          <AppLogo variant="full" className="h-20" />
         </div>
 
         {/* Formulário */}

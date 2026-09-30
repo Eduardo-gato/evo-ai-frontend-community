@@ -111,7 +111,7 @@ export default function MicrosoftCallback() {
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
         <div className="text-center">
-          <AppLogo className="h-10 mx-auto" />
+          <AppLogo variant="full" className="h-16 mx-auto" />
         </div>
 
         {/* Card de Callback */}

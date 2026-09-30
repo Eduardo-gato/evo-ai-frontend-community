@@ -1,19 +1,19 @@
 import type { CSSProperties } from 'react';
-import { useDarkMode } from '../hooks/useDarkMode';
-import logoDark from '../assets/EVO_CRM.svg';
-import logoLight from '../assets/EVO_CRM_light.svg';
+import logoMark from '../assets/dom-crm-mark.png';
+import logoFull from '../assets/dom-crm-logo.png';
 
 interface AppLogoProps {
   className?: string;
   alt?: string;
   style?: CSSProperties;
+  // `mark` = símbolo do ícone (cabeçalho/sidebar); `full` = arte completa (login/entrada).
+  variant?: 'mark' | 'full';
+  // Mantido por compatibilidade com chamadas existentes; a marca é única agora.
   forceTheme?: 'dark' | 'light';
 }
 
-export function AppLogo({ className, alt = 'EVO CRM', style, forceTheme }: AppLogoProps) {
-  const { theme } = useDarkMode();
-  const effectiveTheme = forceTheme ?? theme;
-  const src = effectiveTheme === 'dark' ? logoDark : logoLight;
+export function AppLogo({ className, alt = 'Dom CRM', style, variant = 'mark' }: AppLogoProps) {
+  const src = variant === 'full' ? logoFull : logoMark;
 
   return <img src={src} alt={alt} className={className} style={style} />;
 }

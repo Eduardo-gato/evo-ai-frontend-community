@@ -122,7 +122,7 @@ export default function CallbackPage({ integrationName, onCallback, onSuccess, r
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
         <div className="flex justify-center">
-          <AppLogo className="h-12" />
+            <AppLogo variant="full" className="h-16" />
         </div>
 
         {/* Status Card */}

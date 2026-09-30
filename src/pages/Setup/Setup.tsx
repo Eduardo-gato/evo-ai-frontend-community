@@ -243,7 +243,7 @@ const Setup: React.FC = () => {
 
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center space-y-4">
-          <AppLogo className="h-10" />
+          <AppLogo variant="full" className="h-16" />
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">{t('title')}</h1>
             <p className="text-muted-foreground">{t('subtitle')}</p>
